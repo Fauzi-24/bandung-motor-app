@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+    /* Custom Color Palette Extension */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    @apply bg-slate-50 text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-700;
+}
+
+/* Custom Scrollbar for Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full border-4 border-transparent bg-clip-content hover:bg-slate-400;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
+}
+
+.glass-dark {
+    @apply bg-slate-900/90 backdrop-blur-md border border-slate-700/50 shadow-xl;
+}
+
+/* Hide Number Input Arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Animation Utilities */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Card Hover Effect */
+.hover-card {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-200;
+}
+
+/* Input Focus Ring */
+.input-primary {
+    @apply transition-all duration-200 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none;
+}
