@@ -14,7 +14,11 @@ const firebaseConfig = {
     measurementId: "G-7LENS2KH4F"
 };
 
-// Initialize Firebase
+// Initialize Firebase (Main App)
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+// Initialize Secondary App for Admin operations (like adding employees without logging out)
+const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+export const secondaryAuth = getAuth(secondaryApp);

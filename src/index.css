@@ -1,23 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-    /* Custom Color Palette Extension */
-    --color-primary-50: #eff6ff;
-    --color-primary-100: #dbeafe;
-    --color-primary-500: #3b82f6;
-    --color-primary-600: #2563eb;
-    --color-primary-700: #1d4ed8;
+    /* Custom Color Palette Extension (Hyprland Neon Dark) */
+    --color-primary-50: #e0f2fe;
+    --color-primary-100: #bae6fd;
+    --color-primary-500: #0ea5e9;
+    --color-primary-600: #0284c7;
+    --color-primary-700: #0369a1;
+    --color-neon-blue: #00f0ff;
+    --color-neon-purple: #b026ff;
+    --color-neon-pink: #ff007f;
 }
 
 body {
     font-family: 'Outfit', sans-serif;
-    @apply bg-slate-50 text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-700;
+    @apply bg-[#050510] text-slate-200 antialiased selection:bg-neon-blue/30 selection:text-white;
+    min-height: 100vh;
+}
+
+/* Base Body Background with subtle noise/gradient */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.15), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(176, 38, 255, 0.1), transparent 50%);
+    z-index: -1;
+    pointer-events: none;
 }
 
 /* Custom Scrollbar for Webkit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -25,16 +43,37 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full border-4 border-transparent bg-clip-content hover:bg-slate-400;
+    background-color: rgb(51 65 85 / 0.5);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
 }
 
-/* Glassmorphism Utilities */
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(100 116 139 / 0.8);
+}
+
+/* Hyprland Glassmorphism Utilities */
 .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
+    background-color: rgb(10 10 22 / 0.7);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 8px 32px 0 rgb(0 0 0 / 0.36);
 }
 
 .glass-dark {
-    @apply bg-slate-900/90 backdrop-blur-md border border-slate-700/50 shadow-xl;
+    background-color: rgb(5 5 10 / 0.8);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgb(255 255 255 / 0.05);
+    box-shadow: 0 8px 32px 0 rgb(0 0 0 / 0.5);
+}
+
+.glass-panel {
+    background-color: rgb(255 255 255 / 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 /* Hide Number Input Arrows */
@@ -46,6 +85,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 input[type=number] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 /* Animation Utilities */
@@ -65,12 +105,80 @@ input[type=number] {
     animation: fadeIn 0.4s ease-out forwards;
 }
 
+/* Hyprland Animated Border Gradient */
+@keyframes borderRotate {
+    100% {
+        transform: rotate(1turn);
+    }
+}
+
+.animated-border {
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.animated-border::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    left: -50%;
+    top: -50%;
+    width: 200%;
+    height: 200%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 50% 50%, 50% 50%;
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+    background-image: linear-gradient(#00f0ff, #00f0ff), linear-gradient(#b026ff, #b026ff), linear-gradient(#00f0ff, #00f0ff), linear-gradient(#b026ff, #b026ff);
+    animation: borderRotate 4s linear infinite;
+}
+
+.animated-border::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 2px;
+    top: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    background: #0a0a16;
+    border-radius: inherit;
+}
+
+.animated-border-content {
+    position: relative;
+    z-index: 1;
+}
+
 /* Card Hover Effect */
 .hover-card {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-200;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-card:hover {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    transform: translateY(-4px);
+    border-color: rgba(0, 240, 255, 0.5);
 }
 
 /* Input Focus Ring */
 .input-primary {
-    @apply transition-all duration-200 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.2);
+    color: white;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+.input-primary::placeholder {
+    color: #94a3b8;
+}
+
+.input-primary:focus {
+    border-color: rgba(0, 240, 255, 0.5);
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) rgba(0, 240, 255, 0.2);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
