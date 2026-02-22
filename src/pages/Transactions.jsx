@@ -147,6 +147,7 @@ const Transactions = () => {
             return toast.error(`Harap pilih mekanik untuk jasa: ${missingMechanic.name}`);
         }
 
+        let success = false;
         setIsProcessing(true);
         try {
             const transactionData = {
@@ -167,31 +168,35 @@ const Transactions = () => {
                 createdAt: new Date(),
             };
 
-            console.log("FINAL TRANSACTION DATA:", transactionData);
             const trId = await saveTransaction(transactionData);
             const fullTransactionData = { id: trId, ...transactionData };
             await upsertCustomer(transactionData);
 
-            // Set state for receipt and trigger browser print dialog
-            setLastTransaction(fullTransactionData);
-            setTimeout(() => {
-                window.print();
-            }, 300);
+            // Fetch products to update stock
+            const p = await getProducts();
+            setProducts(p);
 
-            // Reset
+            // Reset UI States
             setCart([]);
             setCash('');
             setCustomerName('');
             setVehicleInfo('');
             toast.success("Transaksi Berhasil!");
 
-            const p = await getProducts();
-            setProducts(p);
+            // Trigger Receipt Render
+            setLastTransaction(fullTransactionData);
+            success = true;
 
         } catch (error) {
             toast.error("Gagal memproses transaksi: " + error.message);
         } finally {
             setIsProcessing(false);
+            if (success) {
+                // Wait for React to finish rendering the ReceiptTemplate DOM before printing
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+            }
         }
     };
 
