@@ -12,6 +12,7 @@ import Inventory from './pages/Inventory';
 import Services from './pages/Services';
 import Employees from './pages/Employees';
 import Transactions from './pages/Transactions';
+import Queue from './pages/Queue';
 import Reports from './pages/Reports';
 
 // v1.2.1 - Refined Riwayat System Fixes
@@ -34,6 +35,11 @@ function App() {
                         <Route path="dashboard" element={
                             <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik']}>
                                 <Dashboard />
+                            </RoleProtectedRoute>
+                        } />
+                        <Route path="queue" element={
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik']}>
+                                <Queue />
                             </RoleProtectedRoute>
                         } />
                         <Route path="customers" element={

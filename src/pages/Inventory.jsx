@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { Plus, Search, Edit2, Trash2, X, Save, Package } from 'lucide-react';
-import { getProducts, addProduct, updateProduct, deleteProduct } from '../services/inventoryService';
+import { Plus, Search, Edit2, Trash2, X, Save, Package, PackagePlus } from 'lucide-react';
+import { getProducts, addProduct, updateProduct, deleteProduct, restockProduct } from '../services/inventoryService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -17,6 +17,8 @@ const Inventory = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, id: null });
+    const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
+    const [restockData, setRestockData] = useState({ addedQuantity: '', buyPrice: '', supplier: '' });
     const [currentProduct, setCurrentProduct] = useState(null);
     const [formData, setFormData] = useState({
         code: '',
@@ -107,6 +109,41 @@ const Inventory = () => {
         } catch (error) {
             console.error("Error saving product:", error);
             toast.error(`Gagal menyimpan barang: ${error.message}`);
+        }
+    };
+
+    const handleOpenRestockModal = (product) => {
+        setCurrentProduct(product);
+        setRestockData({
+            addedQuantity: '',
+            buyPrice: product.buyPrice ?? product.costPrice ?? '',
+            supplier: ''
+        });
+        setIsRestockModalOpen(true);
+    };
+
+    const handleCloseRestockModal = () => {
+        setIsRestockModalOpen(false);
+        setCurrentProduct(null);
+    };
+
+    const handleRestockSubmit = async (e) => {
+        e.preventDefault();
+        const qty = Number(restockData.addedQuantity);
+        if (!qty || qty <= 0) return toast.error("Jumlah tambah harus lebih dari 0");
+        try {
+            await restockProduct(
+                currentProduct.id,
+                currentProduct.stock || 0,
+                qty,
+                restockData.buyPrice || 0,
+                restockData.supplier || '-'
+            );
+            toast.success("Barang berhasil di-restock!");
+            fetchProducts();
+            handleCloseRestockModal();
+        } catch (error) {
+            toast.error("Gagal restock: " + error.message);
         }
     };
 
@@ -281,6 +318,13 @@ const Inventory = () => {
                                                 <td className="p-4">
                                                     <div className="flex items-center justify-center gap-1">
                                                         <button
+                                                            onClick={() => handleOpenRestockModal(product)}
+                                                            className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors border border-transparent hover:border-emerald-400/30"
+                                                            title="Restock / Tambah Stok"
+                                                        >
+                                                            <PackagePlus size={16} />
+                                                        </button>
+                                                        <button
                                                             onClick={() => handleOpenModal(product)}
                                                             className="p-2 text-slate-400 hover:text-[#00f0ff] hover:bg-[#00f0ff]/10 rounded-lg transition-colors border border-transparent hover:border-[#00f0ff]/30"
                                                             title="Edit"
@@ -425,6 +469,113 @@ const Inventory = () => {
                                     <button
                                         type="submit"
                                         className="flex-1 px-4 py-3 bg-gradient-to-r from-[#00f0ff] to-[#0284c7] hover:from-[#00f0ff] hover:to-[#0ea5e9] text-[#050510] font-bold rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(0,240,255,0.4)] hover:shadow-[0_0_25px_rgba(0,240,255,0.6)] flex items-center justify-center gap-2"
+                                    >
+                                        <Save size={18} />
+                                        Simpan
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Restock Modal */}
+            <AnimatePresence>
+                {isRestockModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-slate-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative"
+                        >
+                            {/* Header */}
+                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-gradient-to-r from-emerald-500/10 to-transparent">
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <PackagePlus className="text-emerald-400" size={24} />
+                                    Restock Barang
+                                </h3>
+                                <button
+                                    onClick={handleCloseRestockModal}
+                                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            {/* Form */}
+                            <form onSubmit={handleRestockSubmit} className="p-6 space-y-5">
+                                <div className="p-4 rounded-xl bg-black/30 border border-white/5 space-y-1">
+                                    <p className="text-sm text-slate-400">Barang</p>
+                                    <p className="font-bold text-white text-lg">{currentProduct?.name}</p>
+                                    <p className="text-sm text-emerald-400">Stok Saat Ini: {currentProduct?.stock}</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1 ml-1">Nama Supplier / Nota (Opsional)</label>
+                                    <input
+                                        type="text"
+                                        value={restockData.supplier}
+                                        onChange={e => setRestockData({ ...restockData, supplier: e.target.value })}
+                                        className="w-full px-4 py-2.5 rounded-xl input-primary focus:border-emerald-500/50"
+                                        placeholder="Contoh: Toko Maju Jaya"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1 ml-1">Kuantitas Masuk</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="1"
+                                            value={restockData.addedQuantity}
+                                            onChange={e => setRestockData({ ...restockData, addedQuantity: cleanNumericValue(e.target.value) })}
+                                            className="w-full px-4 py-2.5 rounded-xl input-primary focus:border-emerald-500/50 text-center font-bold text-lg"
+                                            placeholder="10"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1 ml-1">Harga Beli Satuan</label>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium tracking-widest">Rp</span>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formatIDR(restockData.buyPrice)}
+                                                onChange={e => setRestockData({ ...restockData, buyPrice: cleanNumericValue(e.target.value) })}
+                                                className="w-full pl-12 pr-4 py-2.5 rounded-xl input-primary focus:border-emerald-500/50"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                                    <p className="text-sm text-slate-400 mb-1">Total Pembayaran ke Supplier</p>
+                                    <p className="text-2xl font-bold text-emerald-400">
+                                        Rp {formatIDR((Number(restockData.addedQuantity) || 0) * (Number(restockData.buyPrice) || 0))}
+                                    </p>
+                                </div>
+
+                                <div className="mt-8 pt-4 border-t border-white/10 flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseRestockModal}
+                                        className="flex-1 px-4 py-3 border border-white/20 text-slate-300 hover:bg-white/5 rounded-xl transition-all"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] flex items-center justify-center gap-2"
                                     >
                                         <Save size={18} />
                                         Simpan

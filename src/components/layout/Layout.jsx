@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, Package, Wrench, Receipt, History, Users, LogOut, Menu, X, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Package, Wrench, Receipt, History, Users, LogOut, Menu, X, ClipboardList, Kanban } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -30,6 +30,7 @@ const Layout = () => {
 
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Owner', 'Kasir', 'Mekanik'] },
+        { name: 'Antrean Servis', path: '/queue', icon: Kanban, roles: ['Owner', 'Kasir', 'Mekanik'] },
         { name: 'Riwayat', path: '/customers', icon: History, roles: ['Owner', 'Kasir'] },
         { name: 'Inventaris', path: '/inventory', icon: Package, roles: ['Owner', 'Kasir'] },
         { name: 'Harga & Jasa', path: '/services', icon: Wrench, roles: ['Owner', 'Kasir', 'Mekanik'] },
