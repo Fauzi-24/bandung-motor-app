@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getTransactions, getEmployeePerformance } from '../services/transactionService';
 import { getProducts } from '../services/inventoryService';
 import { DollarSign, Users, AlertTriangle, TrendingUp, Activity, Wrench } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
