@@ -164,7 +164,7 @@ const Services = () => {
                 </div>
 
                 <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left min-w-[500px]">
                         <thead className="bg-black/40 text-slate-300 font-medium border-b border-white/10 uppercase text-xs tracking-wider">
                             <tr>
                                 <th className="p-4 rounded-tl-xl whitespace-nowrap">Nama Jasa / Servis</th>

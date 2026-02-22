@@ -185,10 +185,10 @@ const Transactions = () => {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)] gap-6 text-slate-200">
+        <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-120px)] gap-6 text-slate-200">
 
             {/* Left Side: Product/Service Catalog */}
-            <div className="flex-1 flex flex-col glass-dark rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.05)] border border-[#00f0ff]/10 overflow-hidden relative z-10">
+            <div className="flex-1 flex flex-col glass-dark rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.05)] border border-[#00f0ff]/10 overflow-hidden relative z-10 min-h-[60vh] lg:min-h-0">
 
                 {/* Header & Tabs */}
                 <div className="p-4 border-b border-white/10 space-y-4 bg-black/20">
@@ -266,7 +266,7 @@ const Transactions = () => {
             </div>
 
             {/* Right Side: Cart */}
-            <div className="w-full lg:w-[400px] flex flex-col glass-dark rounded-2xl shadow-[0_0_30px_rgba(255,0,127,0.05)] border border-[#ff007f]/20 h-full relative overflow-hidden z-10">
+            <div className="w-full lg:w-[400px] flex flex-col glass-dark rounded-2xl shadow-[0_0_30px_rgba(255,0,127,0.05)] border border-[#ff007f]/20 h-auto lg:h-full relative overflow-hidden z-10">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff007f]/5 rounded-bl-[100px] pointer-events-none blur-xl"></div>
 
                 <div className="p-4 border-b border-white/10 bg-black/20 flex justify-between items-center relative z-10">
@@ -290,7 +290,7 @@ const Transactions = () => {
                 </div>
 
                 {/* Cart Items */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar max-h-[40vh] lg:max-h-none">
                     {cart.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-70">
                             <ShoppingCart size={48} className="mb-4 text-slate-600" />

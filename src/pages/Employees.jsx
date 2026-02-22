@@ -208,7 +208,7 @@ const Employees = () => {
 
     return (
         <div className="space-y-6 text-slate-200">
-            <div className="flex justify-between items-center relative z-10">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">Manajemen Karyawan</h1>
                     <p className="text-[#bae6fd] mt-1 font-medium">Kelola data dan gaji mekanik & staf</p>
@@ -255,20 +255,20 @@ const Employees = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleOpenModal(employee)}
-                                        className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/20"
+                                        className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/20"
                                         title="Edit"
                                     >
-                                        <Edit size={16} />
+                                        <Edit size={18} />
                                     </button>
                                     <button
                                         onClick={() => confirmDelete(employee.id)}
-                                        className="p-1.5 text-slate-400 hover:text-[#ff007f] hover:bg-[#ff007f]/10 rounded-lg transition-colors border border-transparent hover:border-[#ff007f]/30"
+                                        className="p-2 text-slate-400 hover:text-[#ff007f] hover:bg-[#ff007f]/10 rounded-lg transition-colors border border-transparent hover:border-[#ff007f]/30"
                                         title="Hapus"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={18} />
                                     </button>
                                 </div>
                             </div>
