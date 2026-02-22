@@ -69,7 +69,7 @@ export const deleteCustomer = async (id) => {
 
 // Save or Update Customer Profile (called during Checkout)
 export const upsertCustomer = async (transactionData) => {
-    if (!transactionData.customerName || Math.trim(transactionData.customerName) === '' || transactionData.customerName === 'Umum') {
+    if (!transactionData.customerName || typeof transactionData.customerName !== 'string' || transactionData.customerName.trim() === '' || transactionData.customerName === 'Umum') {
         return; // Don't save generic walk-in customers
     }
 
