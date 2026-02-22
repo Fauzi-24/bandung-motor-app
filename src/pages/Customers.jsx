@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUniqueCustomersFromTransactions } from '../services/transactionService';
+import { getCustomers } from '../services/customerService';
 import { Search, Car, History, TrendingUp, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
@@ -20,7 +20,7 @@ const Customers = () => {
 
     const fetchCustomers = async () => {
         try {
-            const data = await getUniqueCustomersFromTransactions();
+            const data = await getCustomers();
             setCustomers(data);
         } catch (error) {
             toast.error('Gagal mengambil data pelanggan dari transaksi');
@@ -132,7 +132,7 @@ const Customers = () => {
 
                             <div className="relative z-10 flex flex-col items-center gap-3">
                                 <p className="text-xs text-slate-500 w-full text-center flex justify-center items-center gap-1.5 border-b border-white/5 pb-3">
-                                    <Clock size={12} /> Terakhir: {customer.lastVisit.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    <Clock size={12} /> Terakhir: {customer.lastVisit?.toDate ? customer.lastVisit.toDate().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : new Date(customer.lastVisit).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                 </p>
                                 <button
                                     onClick={() => handleOpenHistory(customer)}

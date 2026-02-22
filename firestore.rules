@@ -1,0 +1,64 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserRole() {
+      return isAuthenticated() 
+        // Read the role from the 'employees' collection using the authenticated user's UID
+        ? get(/databases/$(database)/documents/employees/$(request.auth.uid)).data.role 
+        : null;
+    }
+
+    // Role Checks
+    function isOwner() { return getUserRole() == 'Owner'; }
+    function isKasir() { return getUserRole() == 'Kasir'; }
+    function isMekanik() { return getUserRole() == 'Mekanik'; }
+
+    // 1. Employees Collection
+    // - Everyone authenticated must read to populate dropdowns (e.g. assigning mechanics to services)
+    // - Only Owners can Add, Edit, or Delete employees
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner();
+    }
+    
+    // 2. Inventory (Products)
+    // - Everyone can read so mechanics can see available stock
+    // - Owners and Cashiers can Add, Edit, or Delete inventory items
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() || isKasir();
+    }
+    
+    // 3. Services (Harga & Jasa)
+    // - Everyone can read so mechanics can see service prices
+    // - Owners and Cashiers can manage service items
+    match /services/{serviceId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() || isKasir();
+    }
+    
+    // 4. Transactions (POS)
+    // - Everyone authenticated can read (mechanics need this for performance/wage calculation on their dashboard)
+    // - Owners and Cashiers can process transactions (write)
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() || isKasir();
+    }
+    
+    // 5. Customers (Riwayat / CRM)
+    // - Everyone can read so mechanics can view repair history
+    // - Owners and Cashiers can manage customers
+    match /customers/{customerId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() || isKasir();
+    }
+
+  }
+}

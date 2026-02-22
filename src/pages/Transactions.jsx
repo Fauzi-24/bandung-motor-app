@@ -5,6 +5,7 @@ import { getProducts } from '../services/inventoryService';
 import { getServices } from '../services/serviceService';
 import { getEmployees } from '../services/employeeService';
 import { saveTransaction } from '../services/transactionService';
+import { upsertCustomer } from '../services/customerService';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomerHistoryModal from '../components/ui/CustomerHistoryModal';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -166,6 +167,7 @@ const Transactions = () => {
 
             console.log("FINAL TRANSACTION DATA:", transactionData);
             await saveTransaction(transactionData);
+            await upsertCustomer(transactionData);
 
             // Reset
             setCart([]);

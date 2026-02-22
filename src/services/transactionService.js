@@ -9,7 +9,8 @@ import {
     Timestamp,
     where,
     runTransaction,
-    doc
+    doc,
+    limit
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'transactions';
@@ -55,9 +56,32 @@ export const saveTransaction = async (transactionData) => {
     }
 };
 
-export const getTransactions = async () => {
+export const getTransactions = async (startDate = null, endDate = null, limitCount = 500) => {
     try {
-        const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
+        let qConstraints = [];
+
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            qConstraints = [
+                where('createdAt', '>=', Timestamp.fromDate(start)),
+                where('createdAt', '<=', Timestamp.fromDate(end)),
+                orderBy('createdAt', 'desc')
+            ];
+        } else {
+            // Default fallback if no dates provided: just get the latest to avoid crashing
+            qConstraints = [
+                orderBy('createdAt', 'desc'),
+                limit(limitCount)
+            ];
+        }
+
+        const q = query(collection(db, COLLECTION_NAME), ...qConstraints);
+
         // Use getDocsFromServer to ensure we bypass potentially stale local cache
         const snapshot = await getDocsFromServer(q);
         return snapshot.docs.map(doc => ({

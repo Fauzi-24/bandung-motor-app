@@ -5,10 +5,13 @@ import {
     updateDoc,
     deleteDoc,
     doc,
+    setDoc,
     getDocs,
+    getDoc,
     query,
     orderBy,
-    Timestamp
+    Timestamp,
+    increment
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'customers';
@@ -61,5 +64,50 @@ export const deleteCustomer = async (id) => {
     } catch (error) {
         console.error("Error deleting customer:", error);
         throw error;
+    }
+};
+
+// Save or Update Customer Profile (called during Checkout)
+export const upsertCustomer = async (transactionData) => {
+    if (!transactionData.customerName || Math.trim(transactionData.customerName) === '' || transactionData.customerName === 'Umum') {
+        return; // Don't save generic walk-in customers
+    }
+
+    try {
+        const name = transactionData.customerName.trim();
+        const licensePlate = transactionData.vehicleInfo ? transactionData.vehicleInfo.trim() : '';
+
+        // Generate a composite ID for simplicity (e.g. "budi-d1234ab") 
+        const idBase = `${name}-${licensePlate}`.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const docId = idBase || 'unknown';
+
+        if (docId === 'unknown') return;
+
+        const customerRef = doc(db, COLLECTION_NAME, docId);
+        const customerSnap = await getDoc(customerRef);
+
+        const tDate = transactionData.createdAt instanceof Timestamp ? transactionData.createdAt : Timestamp.now();
+
+        if (customerSnap.exists()) {
+            await updateDoc(customerRef, {
+                totalSpent: increment(transactionData.totalAmount),
+                visitCount: increment(1),
+                lastVisit: tDate
+            });
+        } else {
+            // Create new robust profile
+            await setDoc(customerRef, {
+                name: name,
+                licensePlate: licensePlate,
+                phone: '',
+                totalSpent: transactionData.totalAmount,
+                visitCount: 1,
+                firstVisit: tDate,
+                lastVisit: tDate
+            });
+        }
+    } catch (error) {
+        console.error("Error upserting customer:", error);
+        // We catch but don't throw because failing to save a customer shouldn't crash the POS transaction
     }
 };

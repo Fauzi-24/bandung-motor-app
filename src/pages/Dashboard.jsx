@@ -229,6 +229,40 @@ const Dashboard = () => {
                 </motion.div>
             </div>
 
+            {/* Low Stock Alert */}
+            <AnimatePresence>
+                {stats.lowStockItems.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                        transition={{ duration: 0.4, type: "spring", bounce: 0.4 }}
+                        className="bg-red-500/5 text-red-200 border border-red-500/30 rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start shadow-[0_0_20px_rgba(239,68,68,0.1)] relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 blur-[60px] rounded-full -mr-32 -mt-32 pointer-events-none"></div>
+                        <div className="p-3 bg-red-500/20 text-red-500 rounded-xl shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.3)] relative z-10 border border-red-500/30">
+                            <AlertTriangle size={24} className="animate-pulse" />
+                        </div>
+                        <div className="relative z-10 flex-1">
+                            <h3 className="text-red-400 font-bold text-lg mb-1 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">Peringatan: Stok Hampir Habis</h3>
+                            <p className="text-red-200/70 text-sm mb-4 leading-relaxed max-w-2xl">
+                                Ada <strong>{stats.lowStockItems.length} barang</strong> yang stoknya tersisa ≤ 5. Segera lakukan pengadaan (restock) untuk memastikan ketersediaan suku cadang dan meminimalisir hilangnya potensi penjualan.
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {stats.lowStockItems.map(item => (
+                                    <div key={item.id} className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-red-500/30">
+                                        <span className="text-xs font-semibold text-red-300">{item.name}</span>
+                                        <span className="bg-red-500 text-white min-w-[24px] text-center px-1.5 py-0.5 rounded flex items-center justify-center font-bold text-[10px] shadow-[0_0_5px_rgba(239,68,68,0.5)]">
+                                            {item.stock}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Top Full-Width Row: Revenue Trend Chart */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}

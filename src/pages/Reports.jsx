@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { getTransactions } from '../services/transactionService';
-import { Calendar, Search, TrendingUp, DollarSign, Filter, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { Calendar, Search, TrendingUp, DollarSign, Filter, ChevronDown, ChevronUp, FileText, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatIDR, formatDateIndo } from '../utils/formatUtils';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -26,7 +26,7 @@ const Reports = () => {
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [startDate, endDate]);
 
     useEffect(() => {
         filterData();
@@ -35,7 +35,7 @@ const Reports = () => {
     const fetchTransactions = async () => {
         setLoading(true);
         try {
-            const data = await getTransactions();
+            const data = await getTransactions(startDate, endDate, 1000);
 
             // Enrich data with profit calculation
             const enrichedData = data.map(t => {
@@ -118,6 +118,45 @@ const Reports = () => {
         }
     };
 
+    const handleExportCSV = () => {
+        if (filteredTransactions.length === 0) {
+            toast.error("Tidak ada data untuk diekspor");
+            return;
+        }
+
+        const headers = ['ID Transaksi', 'Tanggal', 'Pelanggan', 'Kendaraan', 'Detail Item', 'Total Transaksi', 'Keuntungan'];
+        const csvRows = [headers.join(',')];
+
+        filteredTransactions.forEach(t => {
+            const date = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+            const dateStr = `${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID')}`;
+
+            const formatCsvStr = (str) => `"${(str || '').toString().replace(/"/g, '""')}"`;
+            const itemsStr = t.items.map(item => `${item.name} (${item.quantity}x)`).join('; ');
+
+            const row = [
+                formatCsvStr(t.id),
+                formatCsvStr(dateStr),
+                formatCsvStr(t.customerName),
+                formatCsvStr(t.vehicleInfo),
+                formatCsvStr(itemsStr),
+                t.totalAmount || 0,
+                t.profit || 0
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + csvRows.join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Laporan_Bengkel_${startDate}_sd_${endDate}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Laporan berhasil diekspor!");
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         show: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -136,27 +175,37 @@ const Reports = () => {
                     <p className="text-[#bae6fd] mt-1 font-medium">Rekap pendapatan dan keuntungan bengkel</p>
                 </div>
 
-                {/* Date Filter */}
-                <div className="flex flex-col sm:flex-row gap-3 glass-dark p-3 rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.1)] border border-[#00f0ff]/20">
-                    <div className="flex items-center gap-2 px-2">
-                        <Calendar size={18} className="text-[#00f0ff]" />
-                        <span className="text-sm font-medium text-slate-300">Periode:</span>
+                {/* Date Filter & Export */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3 glass-dark p-3 rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.1)] border border-[#00f0ff]/20">
+                        <div className="flex items-center gap-2 px-2">
+                            <Calendar size={18} className="text-[#00f0ff]" />
+                            <span className="text-sm font-medium text-slate-300">Periode:</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="text-sm border border-white/10 bg-black/40 rounded-lg px-3 py-1.5 outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff]/50 text-white [color-scheme:dark]"
+                            />
+                            <span className="text-slate-500">-</span>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="text-sm border border-white/10 bg-black/40 rounded-lg px-3 py-1.5 outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff]/50 text-white [color-scheme:dark]"
+                            />
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="text-sm border border-white/10 bg-black/40 rounded-lg px-3 py-1.5 outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff]/50 text-white [color-scheme:dark]"
-                        />
-                        <span className="text-slate-500">-</span>
-                        <input
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="text-sm border border-white/10 bg-black/40 rounded-lg px-3 py-1.5 outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff]/50 text-white [color-scheme:dark]"
-                        />
-                    </div>
+
+                    <button
+                        onClick={handleExportCSV}
+                        className="flex items-center justify-center gap-2 px-4 py-3 sm:py-0 bg-[#00f0ff]/10 text-[#00f0ff] hover:bg-[#00f0ff] hover:text-[#050510] border border-[#00f0ff]/30 hover:border-transparent rounded-xl transition-all shadow-[0_0_10px_rgba(0,240,255,0.1)] hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] font-bold text-sm h-full self-stretch"
+                    >
+                        <Download size={18} />
+                        <span className="hidden sm:inline">Export CSV</span>
+                    </button>
                 </div>
             </div>
 
@@ -339,7 +388,7 @@ const Reports = () => {
                     </table>
                 </div>
             </motion.div>
-        </div>
+        </div >
     );
 };
 
