@@ -80,7 +80,7 @@ const Shop = () => {
         setCart(cart.filter(item => item.id !== id));
     };
 
-    const cartTotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
+    const cartTotal = cart.reduce((sum, item) => sum + (Number(item.sellPrice || 0) * Number(item.quantity || 0)), 0);
     const cartItemsCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
 
     const handleCheckout = async (e) => {
@@ -98,8 +98,7 @@ const Shop = () => {
                 items: cart.map(item => ({
                     productId: item.productId,
                     name: item.name,
-                    price: item.price,
-                    price: Number(item.price || 0),
+                    price: Number(item.sellPrice || 0),
                     quantity: Number(item.quantity || 0),
                     type: 'product',
                     buyPrice: Number(item.buyPrice || 0)
@@ -206,7 +205,7 @@ const Shop = () => {
                                 <div className="mt-4 pt-4 border-t border-white/10 flex items-end justify-between">
                                     <div>
                                         <p className="text-xs text-slate-500 mb-0.5">Harga</p>
-                                        <p className="font-bold text-white tracking-wide">Rp {Number(product.price || 0).toLocaleString('id-ID')}</p>
+                                        <p className="font-bold text-white tracking-wide">Rp {Number(product.sellPrice || 0).toLocaleString('id-ID')}</p>
                                     </div>
                                     <button
                                         onClick={() => addToCart(product)}
@@ -268,7 +267,7 @@ const Shop = () => {
                                         <div key={item.id} className="bg-black/30 p-4 rounded-2xl border border-white/5 flex gap-4 items-center">
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="font-bold text-white truncate">{item.name}</h4>
-                                                <p className="text-[#00f0ff] font-medium mt-1">Rp {Number(item.price || 0).toLocaleString('id-ID')}</p>
+                                                <p className="text-[#00f0ff] font-medium mt-1">Rp {Number(item.sellPrice || 0).toLocaleString('id-ID')}</p>
                                             </div>
                                             <div className="flex items-center gap-3 bg-slate-800 rounded-xl p-1 border border-white/5">
                                                 <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
