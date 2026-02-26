@@ -35,6 +35,7 @@ const Layout = () => {
         { name: 'Inventaris', path: '/inventory', icon: Package, roles: ['Owner', 'Kasir'] },
         { name: 'Harga & Jasa', path: '/services', icon: Wrench, roles: ['Owner', 'Kasir', 'Mekanik'] },
         { name: 'Transaksi', path: '/transactions', icon: Receipt, roles: ['Owner', 'Kasir'] },
+        { name: 'Pesanan Online', path: '/online-orders', icon: Package, roles: ['Owner', 'Kasir'] },
         { name: 'Laporan', path: '/reports', icon: ClipboardList, roles: ['Owner'] },
         { name: 'Karyawan & Gaji', path: '/employees', icon: Users, roles: ['Owner'] },
     ];

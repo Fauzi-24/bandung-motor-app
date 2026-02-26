@@ -14,6 +14,8 @@ import Employees from './pages/Employees';
 import Transactions from './pages/Transactions';
 import Queue from './pages/Queue';
 import Reports from './pages/Reports';
+import Shop from './pages/Shop';
+import OnlineOrders from './pages/OnlineOrders';
 
 // v1.2.1 - Refined Riwayat System Fixes
 function App() {
@@ -23,6 +25,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/shop" element={<Shop />} />
 
                     <Route path="/" element={
                         <ProtectedRoute>
@@ -62,6 +65,11 @@ function App() {
                         <Route path="transactions" element={
                             <RoleProtectedRoute allowedRoles={['Owner', 'Kasir']}>
                                 <Transactions />
+                            </RoleProtectedRoute>
+                        } />
+                        <Route path="online-orders" element={
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir']}>
+                                <OnlineOrders />
                             </RoleProtectedRoute>
                         } />
 
