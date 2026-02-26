@@ -29,15 +29,15 @@ const Layout = () => {
     };
 
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Owner', 'Kasir', 'Mekanik'] },
-        { name: 'Antrean Servis', path: '/queue', icon: Kanban, roles: ['Owner', 'Kasir', 'Mekanik'] },
-        { name: 'Riwayat', path: '/customers', icon: History, roles: ['Owner', 'Kasir'] },
-        { name: 'Inventaris', path: '/inventory', icon: Package, roles: ['Owner', 'Kasir'] },
-        { name: 'Harga & Jasa', path: '/services', icon: Wrench, roles: ['Owner', 'Kasir', 'Mekanik'] },
-        { name: 'Transaksi', path: '/transactions', icon: Receipt, roles: ['Owner', 'Kasir'] },
-        { name: 'Pesanan Online', path: '/online-orders', icon: Package, roles: ['Owner', 'Kasir'] },
-        { name: 'Laporan', path: '/reports', icon: ClipboardList, roles: ['Owner'] },
-        { name: 'Karyawan & Gaji', path: '/employees', icon: Users, roles: ['Owner'] },
+        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Owner', 'Kasir', 'Mekanik', 'Admin'] },
+        { name: 'Antrean Servis', path: '/queue', icon: Kanban, roles: ['Owner', 'Kasir', 'Mekanik', 'Admin'] },
+        { name: 'Riwayat', path: '/customers', icon: History, roles: ['Owner', 'Kasir', 'Admin'] },
+        { name: 'Inventaris', path: '/inventory', icon: Package, roles: ['Owner', 'Kasir', 'Admin'] },
+        { name: 'Harga & Jasa', path: '/services', icon: Wrench, roles: ['Owner', 'Kasir', 'Mekanik', 'Admin'] },
+        { name: 'Transaksi', path: '/transactions', icon: Receipt, roles: ['Owner', 'Kasir', 'Admin'] },
+        { name: 'Pesanan Online', path: '/online-orders', icon: Package, roles: ['Owner', 'Kasir', 'Admin'] },
+        { name: 'Laporan', path: '/reports', icon: ClipboardList, roles: ['Owner', 'Admin'] },
+        { name: 'Karyawan & Gaji', path: '/employees', icon: Users, roles: ['Owner', 'Admin'] },
     ];
 
     const filteredNavItems = navItems.filter(item => item.roles.includes(userRole));

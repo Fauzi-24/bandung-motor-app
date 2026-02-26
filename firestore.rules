@@ -19,21 +19,22 @@ service cloud.firestore {
     function isOwner() { return getUserRole() == 'Owner'; }
     function isKasir() { return getUserRole() == 'Kasir'; }
     function isMekanik() { return getUserRole() == 'Mekanik'; }
+    function isAdmin() { return getUserRole() == 'Admin'; }
 
     // 1. Employees Collection
     // - Everyone authenticated must read to populate dropdowns (e.g. assigning mechanics to services)
     // - Only Owners can Add, Edit, or Delete employees
     match /employees/{employeeId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner();
+      allow write: if isOwner() || isAdmin();
     }
     
     // 2. Inventory (Products)
     // - Everyone can read so mechanics can see available stock
     // - Owners and Cashiers can Add, Edit, or Delete inventory items
     match /products/{productId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner() || isKasir();
+      allow read: if true; // Public access for Shop
+      allow write: if isOwner() || isKasir() || isAdmin();
     }
     
     // 3. Services (Harga & Jasa)
@@ -41,7 +42,7 @@ service cloud.firestore {
     // - Owners and Cashiers can manage service items
     match /services/{serviceId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner() || isKasir();
+      allow write: if isOwner() || isKasir() || isAdmin();
     }
     
     // 4. Transactions (POS)
@@ -49,7 +50,7 @@ service cloud.firestore {
     // - Owners and Cashiers can process transactions (write)
     match /transactions/{transactionId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner() || isKasir();
+      allow write: if isOwner() || isKasir() || isAdmin();
     }
     
     // 5. Customers (Riwayat / CRM)
@@ -57,7 +58,15 @@ service cloud.firestore {
     // - Owners and Cashiers can manage customers
     match /customers/{customerId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner() || isKasir();
+      allow write: if isOwner() || isKasir() || isAdmin();
+    }
+
+    // 6. Online Orders (Shop feature)
+    // - Public can place orders
+    // - Owners, Admins, and Cashiers can read and manage (complete/cancel) these orders
+    match /online_orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if isOwner() || isKasir() || isAdmin();
     }
 
   }

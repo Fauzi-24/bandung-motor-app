@@ -34,53 +34,53 @@ function App() {
                     }>
                         <Route index element={<DefaultRoute />} />
 
-                        {/* Owner, Kasir, & Mekanik Routes */}
+                        {/* Owner, Kasir, Mekanik, & Admin Routes */}
                         <Route path="dashboard" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik', 'Admin']}>
                                 <Dashboard />
                             </RoleProtectedRoute>
                         } />
                         <Route path="queue" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik', 'Admin']}>
                                 <Queue />
                             </RoleProtectedRoute>
                         } />
                         <Route path="customers" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Admin']}>
                                 <Customers />
                             </RoleProtectedRoute>
                         } />
                         <Route path="inventory" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Admin']}>
                                 <Inventory />
                             </RoleProtectedRoute>
                         } />
 
                         {/* All Roles */}
                         <Route path="services" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Mekanik', 'Admin']}>
                                 <Services />
                             </RoleProtectedRoute>
                         } />
                         <Route path="transactions" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Admin']}>
                                 <Transactions />
                             </RoleProtectedRoute>
                         } />
                         <Route path="online-orders" element={
-                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Kasir', 'Admin']}>
                                 <OnlineOrders />
                             </RoleProtectedRoute>
                         } />
 
                         {/* Owner Only Routes */}
                         <Route path="employees" element={
-                            <RoleProtectedRoute allowedRoles={['Owner']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Admin']}>
                                 <Employees />
                             </RoleProtectedRoute>
                         } />
                         <Route path="reports" element={
-                            <RoleProtectedRoute allowedRoles={['Owner']}>
+                            <RoleProtectedRoute allowedRoles={['Owner', 'Admin']}>
                                 <Reports />
                             </RoleProtectedRoute>
                         } />
