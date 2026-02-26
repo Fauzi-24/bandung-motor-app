@@ -3,8 +3,7 @@ import { getTransactions, getEmployeePerformance } from '../services/transaction
 import { getProducts } from '../services/inventoryService';
 import { DollarSign, Users, AlertTriangle, TrendingUp, Activity, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
@@ -20,6 +19,7 @@ const Dashboard = () => {
         weeklyRevenue: []
     });
     const [chartOffsetDays, setChartOffsetDays] = useState(0);
+    const [showLowStockAlert, setShowLowStockAlert] = useState(true);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -229,29 +229,31 @@ const Dashboard = () => {
                 </motion.div>
             </div>
 
-            {/* Low Stock Alert */}
+            {/* Low Stock Floating Alert */}
             <AnimatePresence>
-                {stats.lowStockItems.length > 0 && (
+                {(stats.lowStockItems.length > 0 && showLowStockAlert) && (
                     <motion.div
-                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                        transition={{ duration: 0.4, type: "spring", bounce: 0.4 }}
-                        className="bg-red-500/5 text-red-200 border border-red-500/30 rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start shadow-[0_0_20px_rgba(239,68,68,0.1)] relative overflow-hidden"
+                        initial={{ opacity: 0, y: -50, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                        transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
+                        className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-3xl bg-red-500/10 backdrop-blur-xl border border-red-500/40 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start shadow-[0_10px_40px_rgba(239,68,68,0.3)] overflow-hidden"
                     >
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 blur-[60px] rounded-full -mr-32 -mt-32 pointer-events-none"></div>
-                        <div className="p-3 bg-red-500/20 text-red-500 rounded-xl shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.3)] relative z-10 border border-red-500/30">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/20 blur-[60px] rounded-full -mr-32 -mt-32 pointer-events-none"></div>
+                        <div className="p-3 bg-red-500/20 text-red-400 rounded-xl shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.4)] relative z-10 border border-red-500/40">
                             <AlertTriangle size={24} className="animate-pulse" />
                         </div>
-                        <div className="relative z-10 flex-1">
-                            <h3 className="text-red-400 font-bold text-lg mb-1 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">Peringatan: Stok Hampir Habis</h3>
-                            <p className="text-red-200/70 text-sm mb-4 leading-relaxed max-w-2xl">
-                                Ada <strong>{stats.lowStockItems.length} barang</strong> yang stoknya tersisa ≤ 5. Segera lakukan pengadaan (restock) untuk memastikan ketersediaan suku cadang dan meminimalisir hilangnya potensi penjualan.
+                        <div className="relative z-10 flex-1 pr-8">
+                            <h3 className="text-red-400 font-bold text-lg mb-1 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">
+                                Peringatan: Stok Hampir Habis!
+                            </h3>
+                            <p className="text-red-200/80 text-sm mb-3 leading-relaxed">
+                                Ada <strong>{stats.lowStockItems.length} barang</strong> yang stoknya menipis (≤ 5). Segera lakukan restock.
                             </p>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto custom-scrollbar pr-2">
                                 {stats.lowStockItems.map(item => (
-                                    <div key={item.id} className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-red-500/30">
-                                        <span className="text-xs font-semibold text-red-300">{item.name}</span>
+                                    <div key={item.id} className="flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-lg border border-red-500/30">
+                                        <span className="text-xs font-semibold text-red-200">{item.name}</span>
                                         <span className="bg-red-500 text-white min-w-[24px] text-center px-1.5 py-0.5 rounded flex items-center justify-center font-bold text-[10px] shadow-[0_0_5px_rgba(239,68,68,0.5)]">
                                             {item.stock}
                                         </span>
@@ -259,6 +261,13 @@ const Dashboard = () => {
                                 ))}
                             </div>
                         </div>
+                        <button
+                            onClick={() => setShowLowStockAlert(false)}
+                            className="absolute top-4 right-4 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-lg transition-colors z-20"
+                            title="Tutup Peringatan"
+                        >
+                            <X size={20} />
+                        </button>
                     </motion.div>
                 )}
             </AnimatePresence>
