@@ -4,12 +4,14 @@ import toast from 'react-hot-toast';
 import { subscribeToActiveOrders, completeOrder, cancelOrder } from '../services/onlineOrderService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const OnlineOrders = () => {
     const { userRole } = useAuth();
     const [orders, setOrders] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [confirmAction, setConfirmAction] = useState({ isOpen: false, type: null, orderId: null, orderData: null });
 
     useEffect(() => {
         const unsubscribe = subscribeToActiveOrders((data) => {
@@ -27,10 +29,9 @@ const OnlineOrders = () => {
         return cName.includes(queryStr) || cPhone.includes(queryStr) || idStr.includes(queryStr);
     });
 
-    const handleComplete = async (orderId, orderData) => {
-        if (!window.confirm(`Konfirmasi pembayaran selesai untuk pesanan ${orderData.customerName}? Ini akan memotong stok barang dan mencatat transaksi.`)) {
-            return;
-        }
+    const handleComplete = async () => {
+        const { orderId, orderData } = confirmAction;
+        if (!orderId || !orderData) return;
 
         setIsProcessing(true);
         try {
@@ -41,13 +42,13 @@ const OnlineOrders = () => {
             toast.error(error.message || "Gagal menyelesaikan pesanan");
         } finally {
             setIsProcessing(false);
+            setConfirmAction({ isOpen: false, type: null, orderId: null, orderData: null });
         }
     };
 
-    const handleCancel = async (orderId, customerName) => {
-        if (!window.confirm(`Yakin ingin membatalkan pesanan dari ${customerName}?`)) {
-            return;
-        }
+    const handleCancel = async () => {
+        const { orderId } = confirmAction;
+        if (!orderId) return;
 
         setIsProcessing(true);
         try {
@@ -58,6 +59,15 @@ const OnlineOrders = () => {
             toast.error("Gagal membatalkan pesanan.");
         } finally {
             setIsProcessing(false);
+            setConfirmAction({ isOpen: false, type: null, orderId: null, orderData: null });
+        }
+    };
+
+    const executeConfirmAction = () => {
+        if (confirmAction.type === 'complete') {
+            handleComplete();
+        } else if (confirmAction.type === 'cancel') {
+            handleCancel();
         }
     };
 
@@ -149,7 +159,7 @@ const OnlineOrders = () => {
                                         {(userRole === 'Kasir' || userRole === 'Owner') && (
                                             <div className="flex gap-2">
                                                 <button
-                                                    onClick={() => handleCancel(order.id, order.customerName)}
+                                                    onClick={() => setConfirmAction({ isOpen: true, type: 'cancel', orderId: order.id, orderData: order })}
                                                     disabled={isProcessing}
                                                     className="p-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl border border-red-500/30 transition-all disabled:opacity-50"
                                                     title="Batalkan"
@@ -157,7 +167,7 @@ const OnlineOrders = () => {
                                                     <XCircle size={20} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleComplete(order.id, order)}
+                                                    onClick={() => setConfirmAction({ isOpen: true, type: 'complete', orderId: order.id, orderData: order })}
                                                     disabled={isProcessing}
                                                     className="p-2.5 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-xl border border-emerald-500/30 transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] disabled:opacity-50 flexitems-center gap-2"
                                                     title="Selesaikan & Bayar"
@@ -175,6 +185,20 @@ const OnlineOrders = () => {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={confirmAction.isOpen}
+                onClose={() => setConfirmAction({ isOpen: false, type: null, orderId: null, orderData: null })}
+                onConfirm={executeConfirmAction}
+                title={confirmAction.type === 'complete' ? "Konfirmasi Pembayaran Selesai" : "Batalkan Pesanan"}
+                message={
+                    confirmAction.type === 'complete'
+                        ? `Selesaikan pesanan untuk ${confirmAction.orderData?.customerName}? Ini akan otomatis memotong stok barang dan mencatatnya sebagai transaksi baru.`
+                        : `Yakin ingin membatalkan pesanan dari ${confirmAction.orderData?.customerName}? Pesanan ini akan diubah statusnya menjadi dibatalkan.`
+                }
+                confirmText={confirmAction.type === 'complete' ? "Ya, Selesaikan" : "Ya, Batalkan"}
+                cancelText="Tutup"
+            />
         </div>
     );
 };
