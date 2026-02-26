@@ -36,10 +36,12 @@ const Shop = () => {
         fetchInventory();
     }, []);
 
-    const filteredProducts = (products || []).filter(p =>
-        (p?.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
-        (p?.category && p.category.toLowerCase().includes((searchQuery || '').toLowerCase()))
-    );
+    const filteredProducts = (products || []).filter(p => {
+        const pName = String(p?.name || '').toLowerCase();
+        const pCat = String(p?.category || '').toLowerCase();
+        const q = String(searchQuery || '').toLowerCase();
+        return pName.includes(q) || pCat.includes(q);
+    });
 
     const addToCart = (product) => {
         const existingItem = cart.find(item => item.id === product.id);
@@ -78,8 +80,8 @@ const Shop = () => {
         setCart(cart.filter(item => item.id !== id));
     };
 
-    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const cartTotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 0)), 0);
+    const cartItemsCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
 
     const handleCheckout = async (e) => {
         e.preventDefault();
@@ -97,9 +99,10 @@ const Shop = () => {
                     productId: item.productId,
                     name: item.name,
                     price: item.price,
-                    quantity: item.quantity,
+                    price: Number(item.price || 0),
+                    quantity: Number(item.quantity || 0),
                     type: 'product',
-                    buyPrice: item.buyPrice || 0
+                    buyPrice: Number(item.buyPrice || 0)
                 })),
                 totalAmount: cartTotal
             };
@@ -203,7 +206,7 @@ const Shop = () => {
                                 <div className="mt-4 pt-4 border-t border-white/10 flex items-end justify-between">
                                     <div>
                                         <p className="text-xs text-slate-500 mb-0.5">Harga</p>
-                                        <p className="font-bold text-white tracking-wide">Rp {product.price.toLocaleString('id-ID')}</p>
+                                        <p className="font-bold text-white tracking-wide">Rp {Number(product.price || 0).toLocaleString('id-ID')}</p>
                                     </div>
                                     <button
                                         onClick={() => addToCart(product)}
@@ -265,7 +268,7 @@ const Shop = () => {
                                         <div key={item.id} className="bg-black/30 p-4 rounded-2xl border border-white/5 flex gap-4 items-center">
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="font-bold text-white truncate">{item.name}</h4>
-                                                <p className="text-[#00f0ff] font-medium mt-1">Rp {item.price.toLocaleString('id-ID')}</p>
+                                                <p className="text-[#00f0ff] font-medium mt-1">Rp {Number(item.price || 0).toLocaleString('id-ID')}</p>
                                             </div>
                                             <div className="flex items-center gap-3 bg-slate-800 rounded-xl p-1 border border-white/5">
                                                 <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors">
@@ -288,7 +291,7 @@ const Shop = () => {
                                 <div className="p-6 border-t border-white/10 bg-black/40">
                                     <div className="flex justify-between items-center mb-6">
                                         <span className="text-slate-400 font-medium">Total Estimasi</span>
-                                        <span className="text-2xl font-bold text-white">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                                        <span className="text-2xl font-bold text-white">Rp {Number(cartTotal || 0).toLocaleString('id-ID')}</span>
                                     </div>
                                     <button
                                         onClick={() => setIsCheckoutModalOpen(true)}
