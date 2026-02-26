@@ -18,8 +18,7 @@ export const subscribeToActiveOrders = (callback) => {
     // Listen for orders that are not yet COMPLETED or CANCELLED
     const q = query(
         collection(db, COLLECTION_NAME),
-        where('status', 'in', ['MENUNGGU_PENGAMBILAN']),
-        orderBy('createdAt', 'asc')
+        where('status', '==', 'MENUNGGU_PENGAMBILAN')
     );
 
     return onSnapshot(q, (snapshot) => {
@@ -27,6 +26,14 @@ export const subscribeToActiveOrders = (callback) => {
             id: doc.id,
             ...doc.data()
         }));
+
+        // Sort by createdAt ascending in memory to avoid needing a Firestore composite index
+        orderData.sort((a, b) => {
+            const timeA = a.createdAt?.toMillis() || 0;
+            const timeB = b.createdAt?.toMillis() || 0;
+            return timeA - timeB;
+        });
+
         callback(orderData);
     }, (error) => {
         console.error("Error listening to online orders:", error);

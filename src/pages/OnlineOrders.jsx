@@ -19,11 +19,13 @@ const OnlineOrders = () => {
         return () => unsubscribe();
     }, []);
 
-    const filteredOrders = orders.filter(o =>
-        o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.customerPhone.includes(searchQuery) ||
-        o.id.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredOrders = orders.filter(o => {
+        const cName = String(o?.customerName || '').toLowerCase();
+        const cPhone = String(o?.customerPhone || '').toLowerCase();
+        const idStr = String(o?.id || '').toLowerCase();
+        const queryStr = String(searchQuery || '').toLowerCase();
+        return cName.includes(queryStr) || cPhone.includes(queryStr) || idStr.includes(queryStr);
+    });
 
     const handleComplete = async (orderId, orderData) => {
         if (!window.confirm(`Konfirmasi pembayaran selesai untuk pesanan ${orderData.customerName}? Ini akan memotong stok barang dan mencatat transaksi.`)) {
