@@ -36,12 +36,14 @@ const Shop = () => {
         fetchInventory();
     }, []);
 
-    const filteredProducts = (products || []).filter(p => {
-        const pName = String(p?.name || '').toLowerCase();
-        const pCat = String(p?.category || '').toLowerCase();
-        const q = String(searchQuery || '').toLowerCase();
-        return pName.includes(q) || pCat.includes(q);
-    });
+    const filteredProducts = React.useMemo(() => {
+        return (products || []).filter(p => {
+            const pName = String(p?.name || '').toLowerCase();
+            const pCat = String(p?.category || '').toLowerCase();
+            const q = String(searchQuery || '').toLowerCase();
+            return pName.includes(q) || pCat.includes(q);
+        });
+    }, [products, searchQuery]);
 
     const addToCart = (product) => {
         const existingItem = cart.find(item => item.id === product.id);
@@ -80,8 +82,13 @@ const Shop = () => {
         setCart(cart.filter(item => item.id !== id));
     };
 
-    const cartTotal = cart.reduce((sum, item) => sum + (Number(item.sellPrice || 0) * Number(item.quantity || 0)), 0);
-    const cartItemsCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    const cartTotal = React.useMemo(() =>
+        cart.reduce((sum, item) => sum + (Number(item.sellPrice || 0) * Number(item.quantity || 0)), 0),
+        [cart]);
+
+    const cartItemsCount = React.useMemo(() =>
+        cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+        [cart]);
 
     const handleCheckout = async (e) => {
         e.preventDefault();
